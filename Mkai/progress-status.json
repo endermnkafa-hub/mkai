@@ -1,0 +1,51 @@
+{
+  "summary": "Temel sistem canlı; kalan iş model ve kalite iyileştirmeleri.",
+  "status": "Canlı verilerden hesaplanıyor.",
+  "tasks": [
+    {
+      "name": "Backend sağlık kontrolü",
+      "done": true,
+      "weight": 20
+    },
+    {
+      "name": "Ön yüz erişilebilirliği",
+      "done": true,
+      "weight": 15
+    },
+    {
+      "name": "Chat endpoint doğrulama",
+      "done": true,
+      "weight": 20
+    },
+    {
+      "name": "Provider routing",
+      "done": true,
+      "weight": 15
+    },
+    {
+      "name": "Daha güçlü model seçimi",
+      "done": false,
+      "weight": 15
+    },
+    {
+      "name": "Prompt kalite ayarı",
+      "done": false,
+      "weight": 15
+    }
+  ],
+  "start_time": "2026-07-08T22:45:35+00:00",
+  "last_update_time": "2026-07-08T22:46:13+00:00",
+  "current_task": "Improving prompt quality and assistant response behavior",
+  "completed_tasks": [
+    "Backend sağlık kontrolü",
+    "Ön yüz erişilebilirliği",
+    "Chat endpoint doğrulama",
+    "Provider routing"
+  ],
+  "remaining_tasks": [
+    "Daha güçlü model seçimi",
+    "Prompt kalite ayarı"
+  ],
+  "percentage_complete": 70.0,
+  "estimated_remaining_time": "1.6h"
+}

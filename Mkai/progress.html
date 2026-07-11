@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MKAI Gerçek İlerleme</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #07111f, #10233f);
+        color: #f5f7ff;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(92vw, 720px);
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 18px 50px rgba(0,0,0,0.28);
+        backdrop-filter: blur(10px);
+      }
+      h1 { margin-top: 0; font-size: 1.6rem; }
+      .percent { font-size: 2.5rem; font-weight: 700; color: #6ee7ff; margin: 8px 0; }
+      .bar { width: 100%; height: 16px; border-radius: 999px; background: rgba(255,255,255,0.14); overflow: hidden; margin: 12px 0 10px; }
+      .fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4ade80, #22d3ee); transition: width 0.7s ease; }
+      .meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 0.95rem; color: #dce6ff; margin-bottom: 10px; }
+      .status { padding: 12px 14px; border-radius: 12px; background: rgba(34,211,238,0.12); border: 1px solid rgba(34,211,238,0.24); margin-top: 12px; }
+      .tasks { margin-top: 14px; display: grid; gap: 8px; }
+      .task { display: flex; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+      .task.done { border-left: 3px solid #4ade80; }
+      .task.pending { border-left: 3px solid #f59e0b; }
+      .pill { font-size: 0.8rem; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.14); }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>MKAI gerçek ilerleme durumu</h1>
+      <div id="percent" class="percent">%0</div>
+      <div class="bar"><div id="fill" class="fill"></div></div>
+      <div class="meta">
+        <span id="summary">İlerleme yükleniyor…</span>
+        <span id="eta">Kalan tahmin: hesaplanıyor…</span>
+      </div>
+      <div id="status" class="status">Durum verisi yükleniyor…</div>
+      <div id="tasks" class="tasks"></div>
+    </div>
+
+    <script>
+      async function loadProgress() {
+        const percentEl = document.getElementById('percent');
+        const fillEl = document.getElementById('fill');
+        const summaryEl = document.getElementById('summary');
+        const etaEl = document.getElementById('eta');
+        const statusEl = document.getElementById('status');
+        const tasksEl = document.getElementById('tasks');
+
+        let data = null;
+        try {
+          const resp = await fetch('progress-status.json', { cache: 'no-store' });
+          if (resp.ok) {
+            data = await resp.json();
+          }
+        } catch (err) {
+          console.warn('progress-status.json could not be loaded.', err);
+        }
+
+        if (!data) {
+          percentEl.textContent = '%0';
+          fillEl.style.width = '0%';
+          summaryEl.textContent = 'İlerleme verisi henüz yok.';
+          etaEl.textContent = 'Kalan tahmin: hesaplanıyor…';
+          statusEl.textContent = 'Bekleniyor…';
+          tasksEl.innerHTML = '<div class="task pending"><span>İlerleme dosyası bekleniyor</span><span class="pill">Bekliyor</span></div>';
+          return;
+        }
+
+        const percent = Number(data.percentage_complete || 0);
+        const completedTasks = Array.isArray(data.completed_tasks) ? data.completed_tasks : [];
+        const remainingTasks = Array.isArray(data.remaining_tasks) ? data.remaining_tasks : [];
+
+        percentEl.textContent = `%${percent.toFixed(1)}`;
+        fillEl.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+        summaryEl.textContent = data.summary || 'İlerleme verisi güncellendi.';
+        etaEl.textContent = `Kalan tahmin: ${data.estimated_remaining_time || 'hesaplanıyor…'}`;
+        statusEl.textContent = `${data.current_task || 'İş akışı takip ediliyor.'}`;
+
+        tasksEl.innerHTML = '';
+        if (completedTasks.length) {
+          const doneBlock = document.createElement('div');
+          doneBlock.className = 'task done';
+          doneBlock.innerHTML = `<span>Tamamlanan görevler (${completedTasks.length})</span><span class="pill">${completedTasks.join(', ')}</span>`;
+          tasksEl.appendChild(doneBlock);
+        }
+        if (remainingTasks.length) {
+          const pendingBlock = document.createElement('div');
+          pendingBlock.className = 'task pending';
+          pendingBlock.innerHTML = `<span>Kalan görevler (${remainingTasks.length})</span><span class="pill">${remainingTasks.join(', ')}</span>`;
+          tasksEl.appendChild(pendingBlock);
+        }
+      }
+
+      loadProgress();
+      setInterval(loadProgress, 10000);
+    </script>
+  </body>
+</html>
